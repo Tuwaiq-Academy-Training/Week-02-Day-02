@@ -1,0 +1,183 @@
+**********************************************************bank controller***************************************
+package com.example.tatorialw2d2.Controllerw2d2;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+@RestController
+public class bankController {
+    ArrayList <bank> usersBank = new ArrayList<>();
+    @GetMapping("usersBank")
+    public ArrayList<bank> getUser() {
+        return usersBank;
+    }
+    @PostMapping("usersBank")
+    public ResponseEntity postUser(@RequestBody bank user) {
+        usersBank.add(user);
+        return ResponseEntity.status(200).body(new ResponseMassage("add is good"));}
+
+    @PutMapping("usersBank/{index}")
+    public ResponseEntity putUser(@PathVariable int index, @RequestBody bank user) {
+        if (index>usersBank.size()-1){
+            return ResponseEntity.status(400).body(new ResponseMassage("bad request"));}
+        usersBank.set(index, user);
+        return ResponseEntity.status(200).body(new ResponseMassage("update is good"));}
+
+    @DeleteMapping("usersBank/{index}")
+    public ResponseEntity deleteUser(@PathVariable int index) {
+        if (index>usersBank.size()-1){
+            return ResponseEntity.status(400).body(new ResponseMassage("bad request"));}
+        usersBank.remove(index);
+        return ResponseEntity.status(200).body(new ResponseMassage("delete is good"));}
+
+    @PutMapping("deposit/{index}")
+    public ResponseEntity Deposit(@PathVariable int index,@RequestBody int money){
+        if (index>usersBank.size()-1){
+            return ResponseEntity.status(400).body(new ResponseMassage("bad request"));}
+        else if(money<0){
+            return ResponseEntity.status(400).body(new ResponseMassage(" money is in the negative"));}
+bank u1=usersBank.get(index);
+      int i= usersBank.get(index).getBalance()+money;
+        usersBank.set(index, u1).setBalance(i);
+
+        return ResponseEntity.status(200).body(new ResponseMassage(" GOOD"));
+    }
+
+    @PutMapping("withdraw/{index}")
+    public ResponseEntity Withdraw(@PathVariable int index,@RequestBody int money){
+
+        if (index>usersBank.size()-1){
+            return ResponseEntity.status(400).body(new ResponseMassage("bad request"));}
+        else if(money>usersBank.get(index).getBalance()){
+            return ResponseEntity.status(400).body(new ResponseMassage(" money less than balance "));}
+
+        bank u2=usersBank.get(index);
+        int i2= usersBank.get(index).getBalance()-money;
+        usersBank.set(index, u2).setBalance(i2);
+        return ResponseEntity.status(200).body(new ResponseMassage("withdraw is good"));
+    }
+    @PutMapping("transfer")
+    public ResponseEntity Transfer (@RequestBody id iduser){
+        for(int x=0;x<usersBank.size();x++){
+            if ((int) iduser.getId1()==usersBank.get(x).getId()){
+                if(iduser.getMoney()>usersBank.get(x).getBalance()){
+                    return ResponseEntity.status(400).body(new ResponseMassage(" money less than balance "));}
+               else{ bank u2=usersBank.get(x);
+                int i2= usersBank.get(x).getBalance()-iduser.getMoney();
+                usersBank.set(x, u2).setBalance(i2);}
+            }
+            if ((int)iduser.getId2()==usersBank.get(x).getId()){
+                bank u2=usersBank.get(x);
+                int i2= usersBank.get(x).getBalance()+iduser.getMoney();
+                usersBank.set(x, u2).setBalance(i2);
+            }
+        }
+        return ResponseEntity.status(200).body(new ResponseMassage("trasfer is good"));}
+@GetMapping("userBank")
+    public ResponseEntity GetBalance(@PathVariable int index) {
+
+    if (index>usersBank.size()-1){
+        return ResponseEntity.status(400).body(new ResponseMassage("bad request"));}
+         bank u2=usersBank.get(index);
+    //int i2= usersBank.get(index).getBalance();
+    return ResponseEntity.status(200).body(new ResponseMassage("the palance is"+usersBank.get(index).getBalance()));
+}
+
+}
+
+************************************bank class*******************************************
+package com.example.tatorialw2d2.Controllerw2d2;
+
+public class bank {
+
+    private int id;
+    private String username;
+    private int balance;
+
+    public bank(int id, String username, int balance) {
+        this.id = id;
+        this.username = username;
+        this.balance = balance;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public int getBalance() {
+        return balance;
+    }
+
+    public void setBalance(int balance) {
+        this.balance = balance;
+    }
+}
+*********************************************id class******************************************
+package com.example.tatorialw2d2.Controllerw2d2;
+
+public class id {
+    private int id1;
+    private int id2;
+    private int money;
+
+    public id(int id1, int id2, int money) {
+        this.id1 = id1;
+        this.id2 = id2;
+        this.money = money;
+    }
+
+    public int getId1() {
+        return id1;
+    }
+
+    public void setId1(int id1) {
+        this.id1 = id1;
+    }
+
+    public int getId2() {
+        return id2;
+    }
+
+    public void setId2(int id2) {
+        this.id2 = id2;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public void setMoney(int money) {
+        this.money = money;
+    }
+}
+***************************************responce message class******************************************
+package com.example.tatorialw2d2.Controllerw2d2;
+
+public class ResponseMassage {
+    private String message;
+
+    public ResponseMassage(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+}
